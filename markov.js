@@ -39,12 +39,13 @@ class MarkovMachine {
     const words = this.words;
 
     for(let i = 0; i < words.length; i++){
-
-      if(words[i+1] === undefined){
-        chainMap.set(words[i], [null]);
+      if (words[i + 1] === undefined) {
+        let wordList = chainMap.get(words[i]) || [];
+        chainMap.set(words[i], [...wordList, null]);
       }
-      else{
-        chainMap.set(words[i], [words[i+1]]);
+      else {
+        let wordList = chainMap.get(words[i]) || [];
+        chainMap.set(words[i], [...wordList, words[i + 1]]);
       }
     }
     return chainMap;
@@ -60,8 +61,38 @@ class MarkovMachine {
     // - start at the first word in the input text
     // - find a random word from the following-words of that
     // - repeat until reaching the terminal null
+
+    // Start with the first key (first word) in chainedWords
+    //  Choose a random word from its values as the second word
+    //  The random word becomes the next key to search
+    //  Repeat until null, return sentence
+
+    const chainedWords = this.chains;
+    let repeat = true;
+    let [word] = chainedWords.keys();
+    let randSentence = word
+
+    while (repeat !== false) {
+      let wordList = chainedWords.get(word);
+      let randomWord = wordList[this.getRandIdx(wordList)];
+
+      if (randomWord === null) {
+        repeat = false;
+      } else {
+        randSentence += ` ${randomWord}`;
+        word = randomWord;
+      }
+    }
+    return randSentence;
+  }
+
+  /** Generate a random index based on the array's length */
+
+  getRandIdx(arr) {
+    return Math.floor(Math.random() * arr.length);
   }
 }
+
 
 
 module.exports = MarkovMachine;
